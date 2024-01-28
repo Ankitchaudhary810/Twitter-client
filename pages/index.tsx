@@ -18,8 +18,9 @@ import {
 } from "@/graphql/query/user";
 import {} from "@/hooks/user";
 import { useQueryClient } from "@tanstack/react-query";
-import { User } from "@/gql/graphql";
+import { Tweet, User } from "@/gql/graphql";
 import Image from "next/image";
+import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
 
 interface TwitterSideBarButton {
   title: string;
@@ -70,7 +71,11 @@ export default function Home() {
   const [userData, setUserData] = React.useState<User>();
   const [State, setState] = React.useState(false);
 
+  const [content, setContent] = React.useState("");
+
   const queryClient = useQueryClient();
+  const { tweets = [] } = useGetAllTweets();
+  const { mutate } = useCreateTweet();
 
   useEffect(() => {
     const token = window.localStorage.getItem("__twitter_token");
@@ -88,11 +93,13 @@ export default function Home() {
     input.click();
   }, []);
 
-  console.log(userData);
+  const handleCreateTweet = useCallback(() => {
+    mutate({ content });
+  }, [content, mutate]);
+
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
       const googleToken = cred.credential;
-      console.log(googleToken);
 
       if (!googleToken) return toast.error("Google token not found");
       const { verifyGoogleToken } = await graphqlClient.request(
@@ -153,8 +160,8 @@ export default function Home() {
                 />
               )}
               <div>
-                <h3 className="text-xl uppercase">{userData.firstName}</h3>
-                <h3 className="text-xl">{userData.lastName}</h3>
+                <h3 className="text-sm font-bold">{userData.firstName}</h3>
+                <h3 className="text-sm font-bold">{userData.lastName}</h3>
               </div>
             </div>
           )}
@@ -179,6 +186,8 @@ export default function Home() {
                 <div className="col-span-11">
                   <textarea
                     className=" w-full bg-transparent text-md p-2 border-b border-slate-700 focus:outline-none"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
                     rows={2}
                     placeholder="Whats happening?"
                     style={{ resize: "none" }}
@@ -189,7 +198,10 @@ export default function Home() {
                       className="text-md"
                     />
                     <div className="mt-2 px-3">
-                      <button className="bg-[#1d9bf0] font-semibold text-sm py-1 px-2 rounded-full ">
+                      <button
+                        className="bg-[#1d9bf0] font-semibold text-sm py-1 px-2 rounded-full "
+                        onClick={handleCreateTweet}
+                      >
                         Tweet
                       </button>
                     </div>
@@ -198,21 +210,10 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
+          {tweets &&
+            tweets?.map((tweet) =>
+              tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null
+            )}
         </div>
 
         <div className="col-span-3">
