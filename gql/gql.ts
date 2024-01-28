@@ -18,7 +18,7 @@ const documents = {
     "\n    #graphal\n    query VerifyUserGoogleToken($token: String!){\n        verifyGoogleToken(token: $token)\n    }\n": types.VerifyUserGoogleTokenDocument,
     "\n  query GetCurrentUser {\n  getCurrentUser {\n    id\n    firstName\n    email\n    lastName\n    profileImageUrl\n  }\n}\n": types.GetCurrentUserDocument,
     "\n\nquery Query {\n  getOnlyName\n}\n\n": types.QueryDocument,
-    "\nquery DetectLoggedInUser($token: String!) {\n  DetectLoggedInUser(token: $token) {\n    id\n    email\n    firstName\n    lastName\n    profileImageUrl\n  }\n}\n": types.DetectLoggedInUserDocument,
+    "\nquery DetectLoggedInUser($token: String!) {\n  DetectLoggedInUser(token: $token) {\n    id\n    email\n    firstName\n    lastName\n    profileImageUrl\n    tweets {\n      id \n      content\n      author {\n        firstName\n        lastName\n        profileImageUrl\n      }\n    }\n  }\n}\n": types.DetectLoggedInUserDocument,
 };
 
 /**
@@ -58,7 +58,7 @@ export function graphql(source: "\n\nquery Query {\n  getOnlyName\n}\n\n"): (typ
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\nquery DetectLoggedInUser($token: String!) {\n  DetectLoggedInUser(token: $token) {\n    id\n    email\n    firstName\n    lastName\n    profileImageUrl\n  }\n}\n"): (typeof documents)["\nquery DetectLoggedInUser($token: String!) {\n  DetectLoggedInUser(token: $token) {\n    id\n    email\n    firstName\n    lastName\n    profileImageUrl\n  }\n}\n"];
+export function graphql(source: "\nquery DetectLoggedInUser($token: String!) {\n  DetectLoggedInUser(token: $token) {\n    id\n    email\n    firstName\n    lastName\n    profileImageUrl\n    tweets {\n      id \n      content\n      author {\n        firstName\n        lastName\n        profileImageUrl\n      }\n    }\n  }\n}\n"): (typeof documents)["\nquery DetectLoggedInUser($token: String!) {\n  DetectLoggedInUser(token: $token) {\n    id\n    email\n    firstName\n    lastName\n    profileImageUrl\n    tweets {\n      id \n      content\n      author {\n        firstName\n        lastName\n        profileImageUrl\n      }\n    }\n  }\n}\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

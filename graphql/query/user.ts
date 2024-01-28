@@ -39,6 +39,15 @@ query DetectLoggedInUser($token: String!) {
     firstName
     lastName
     profileImageUrl
+    tweets {
+      id 
+      content
+      author {
+        firstName
+        lastName
+        profileImageUrl
+      }
+    }
   }
 }
 `)
