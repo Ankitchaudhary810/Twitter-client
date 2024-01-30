@@ -18,6 +18,8 @@ import {
 import toast from "react-hot-toast";
 import { graphqlClient } from "@/clients/api";
 import Link from "next/link";
+import { useCurrentUser } from "@/hooks/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TwitterLayoutProps {
   children: React.ReactNode;
@@ -29,11 +31,10 @@ interface TwitterSideBarButton {
   link: string;
 }
 
-async function FetchCurrentLoggedInUser(token: string) {
-  return await graphqlClient.request(DetectLoggedInUser, { token });
-}
-
 const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
+  const { user } = useCurrentUser();
+  const queryClient = useQueryClient();
+
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
       const googleToken = cred.credential;
@@ -51,22 +52,13 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
       }, 2000);
       if (verifyGoogleToken) {
         window.localStorage.setItem("__twitter_token", verifyGoogleToken);
-        window.location.reload();
+        // window.location.reload();
+        await queryClient.invalidateQueries(["curent-user"]);
       }
     },
 
-    []
+    [queryClient]
   );
-
-  const [userData, setUserData] = React.useState<User>();
-  useEffect(() => {
-    const token = window.localStorage.getItem("__twitter_token");
-    if (token) {
-      FetchCurrentLoggedInUser(token).then((UsEr) => {
-        setUserData(UsEr.DetectLoggedInUser!);
-      });
-    }
-  }, []);
 
   const sidebarMenuItems: TwitterSideBarButton[] = useMemo(
     () => [
@@ -104,7 +96,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
       {
         title: "Profile",
         icon: <BiUser />,
-        link: `/${userData?.id}`,
+        link: `/${user?.id}`,
       },
       {
         title: "More Options",
@@ -112,7 +104,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
         link: "/",
       },
     ],
-    [userData?.id]
+    [user?.id]
   );
 
   return (
@@ -150,12 +142,12 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
             </div>
           </div>
 
-          {userData && (
+          {user && (
             <div className=" absolute bottom-5 flex gap-2 items-center bg-slate-800 rounded-full px-3 py-3">
-              {userData && userData.profileImageUrl && (
+              {user && user.profileImageUrl && (
                 <Image
                   className="rounded-full"
-                  src={userData?.profileImageUrl}
+                  src={user?.profileImageUrl}
                   alt="user-profile"
                   height={40}
                   width={40}
@@ -163,7 +155,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
               )}
               <div className="hidden sm:block">
                 <h3 className="text-md ">
-                  {userData.firstName} {userData.lastName}
+                  {user.firstName} {user.lastName}
                 </h3>
               </div>
             </div>
@@ -174,7 +166,7 @@ const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
         </div>
 
         <div className="col-span-0 sm:col-span-3 p-5">
-          {!userData && (
+          {!user && (
             <div className=" p-5 bg-slate-700 rounded-lg">
               <h1 className="my-2 text-2xl">New to Twitter?</h1>
               <GoogleLogin onSuccess={handleLoginWithGoogle} />

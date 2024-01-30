@@ -16,7 +16,7 @@ import {
   DetectLoggedInUser,
   verifyUserGoogleTokenQuery,
 } from "@/graphql/query/user";
-import {} from "@/hooks/user";
+import { useCurrentUser } from "@/hooks/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tweet, User } from "@/gql/graphql";
 import Image from "next/image";
@@ -30,6 +30,8 @@ async function FetchCurrentLoggedInUser(token: string) {
 export default function Home() {
   const [State, setState] = React.useState(false);
   const [userData, setUserData] = React.useState<User>();
+
+  const { user } = useCurrentUser();
 
   const [content, setContent] = React.useState("");
 

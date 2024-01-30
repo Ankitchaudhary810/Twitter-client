@@ -9,6 +9,7 @@ import React from "react";
 import { useEffect } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import { useRouter } from "next/router";
+import { useCurrentUser } from "@/hooks/user";
 
 async function FetchCurrentLoggedInUser(token: string) {
   return await graphqlClient.request(DetectLoggedInUser, { token });
@@ -16,15 +17,17 @@ async function FetchCurrentLoggedInUser(token: string) {
 
 const UserProfilePage: NextPage = () => {
   const router = useRouter();
-  const [userData, setUserData] = React.useState<User>();
-  useEffect(() => {
-    const token = window.localStorage.getItem("__twitter_token");
-    if (token) {
-      FetchCurrentLoggedInUser(token).then((UsEr) => {
-        setUserData(UsEr.DetectLoggedInUser!);
-      });
-    }
-  }, []);
+  const { user } = useCurrentUser();
+
+  // const [userData, setUserData] = React.useState<User>();
+  // useEffect(() => {
+  //   const token = window.localStorage.getItem("__twitter_token");
+  //   if (token) {
+  //     FetchCurrentLoggedInUser(token).then((UsEr) => {
+  //       setUserData(UsEr.DetectLoggedInUser!);
+  //     });
+  //   }
+  // }, []);
   return (
     <div>
       <TwitterLayout>
@@ -37,9 +40,9 @@ const UserProfilePage: NextPage = () => {
             </div>
           </nav>
           <div className="p-2  border-b border-slate-800">
-            {userData && userData.profileImageUrl && (
+            {user && user.profileImageUrl && (
               <Image
-                src={userData.profileImageUrl}
+                src={user.profileImageUrl}
                 className="rounded-full"
                 width={100}
                 height={100}
@@ -47,11 +50,11 @@ const UserProfilePage: NextPage = () => {
               />
             )}
             <h1 className="text-xl  mt-3">
-              {userData?.firstName} {userData?.lastName}
+              {user?.firstName} {user?.lastName}
             </h1>
           </div>
           <div>
-            {userData?.tweets?.map((tweet) => (
+            {user?.tweets?.map((tweet) => (
               <FeedCard key={tweet?.id} data={tweet as Tweet} />
             ))}
           </div>
