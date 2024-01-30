@@ -4,12 +4,14 @@ import { BiMessageRounded, BiUpload } from "react-icons/bi";
 import { FaRetweet } from "react-icons/fa";
 import { AiOutlineHeart } from "react-icons/ai";
 import { Tweet } from "@/gql/graphql";
+import Link from "next/link";
 
 interface FeedCardData {
   data: Tweet;
 }
 const FeedCard: React.FC<FeedCardData> = (props) => {
   const { data } = props;
+
   return (
     <div className="border border-l-0 border-t-0  border-gray-900 p-4 hover:bg-slate-950 transition-all cursor-pointer">
       <div className=" grid grid-cols-12 gap-2">
@@ -26,9 +28,11 @@ const FeedCard: React.FC<FeedCardData> = (props) => {
           )}
         </div>
         <div className="col-span-11">
-          <h5>
-            {data.author?.firstName} {data.author?.lastName}
-          </h5>
+          <h6>
+            <Link href={`/${data?.author?.id}`}>
+              {data.author?.firstName} {data.author?.lastName}
+            </Link>
+          </h6>
           <p>{data.content}</p>
           <div className="flex justify-between mt-5 text-xl items-center w-[90%] ">
             <div>

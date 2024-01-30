@@ -22,12 +22,18 @@ import { Tweet, User } from "@/gql/graphql";
 import Image from "next/image";
 import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
 import TwitterLayout from "@/Components/Layout/TwitterLayout";
+import { GetServerSideProps } from "next";
+import { getAllTweetsQuery } from "@/graphql/query/tweet";
+
+interface HomeProps {
+  tweets?: Tweet[];
+}
 
 async function FetchCurrentLoggedInUser(token: string) {
   return await graphqlClient.request(DetectLoggedInUser, { token });
 }
 
-export default function Home() {
+export default function Home(props: HomeProps) {
   const [State, setState] = React.useState(false);
   const [userData, setUserData] = React.useState<User>();
 
@@ -36,7 +42,8 @@ export default function Home() {
   const [content, setContent] = React.useState("");
 
   const queryClient = useQueryClient();
-  const { tweets = [] } = useGetAllTweets();
+  // const { tweets = [] } = useGetAllTweets();
+
   const { mutate } = useCreateTweet();
 
   const handleSelectImage = useCallback(() => {
@@ -44,15 +51,6 @@ export default function Home() {
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
     input.click();
-  }, []);
-
-  useEffect(() => {
-    const token = window.localStorage.getItem("__twitter_token");
-    if (token) {
-      FetchCurrentLoggedInUser(token).then((UsEr) => {
-        setUserData(UsEr.DetectLoggedInUser!);
-      });
-    }
   }, []);
 
   const handleCreateTweet = useCallback(() => {
@@ -102,11 +100,22 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {tweets &&
-          tweets?.map((tweet) =>
+        {props.tweets &&
+          props.tweets?.map((tweet) =>
             tweet ? <FeedCard key={tweet?.id} data={tweet as Tweet} /> : null
           )}
       </TwitterLayout>
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async (
+  context
+) => {
+  const allTweets = await graphqlClient.request(getAllTweetsQuery);
+  return {
+    props: {
+      tweets: allTweets.getAllTweets as Tweet[],
+    },
+  };
+};

@@ -16,6 +16,16 @@ export const getCurrentUserQuery = graphql(`
     email
     lastName
     profileImageUrl
+    tweets{
+      id 
+      content
+      author{
+        id
+        firstName
+        lastName
+        profileImageUrl
+      }
+    }
   }
 }
 `)
@@ -43,6 +53,7 @@ query DetectLoggedInUser($token: String!) {
       id 
       content
       author {
+        id
         firstName
         lastName
         profileImageUrl
@@ -50,4 +61,26 @@ query DetectLoggedInUser($token: String!) {
     }
   }
 }
+`)
+
+
+export const getUserByIdQuery = graphql(` 
+  query GetUserById($id: ID!) {
+    getUserById(id: $id) {
+      id
+      firstName
+      lastName
+      profileImageUrl
+      tweets {
+        id
+        content
+        author {
+        id
+        firstName
+        lastName
+        profileImageUrl
+        }
+      }
+    }
+  }
 `)
