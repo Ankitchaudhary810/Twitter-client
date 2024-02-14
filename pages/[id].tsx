@@ -1,15 +1,20 @@
-import FeedCard from "@/Components/FeedCard";
-import TwitterLayout from "@/Components/Layout/TwitterLayout";
-import { graphqlClient } from "@/clients/api";
-import { Tweet, User } from "@/gql/graphql";
-import { DetectLoggedInUser, getUserByIdQuery } from "@/graphql/query/user";
-import type { GetServerSideProps, NextPage } from "next";
-import Image from "next/image";
-import React from "react";
-import { useEffect } from "react";
-import { BsArrowLeft } from "react-icons/bs";
 import { useRouter } from "next/router";
+import Twitterlayout from "@/components/FeedCard/Layout/TwitterLayout";
+import Image from "next/image";
+import type { GetServerSideProps, NextPage } from "next";
+import { BsArrowLeftShort } from "react-icons/bs";
 import { useCurrentUser } from "@/hooks/user";
+import FeedCard from "@/components/FeedCard";
+import { Tweet, User } from "@/gql/graphql";
+import { graphqlClient } from "@/clients/api";
+import { getUserByIdQuery } from "@/graphql/query/user";
+import { useCallback, useMemo } from "react";
+import {
+  followUserMutation,
+  unfollowUserMutation,
+} from "@/graphql/mutation/user";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 interface ServerProps {
   userInfo?: User;
@@ -17,41 +22,101 @@ interface ServerProps {
 
 const UserProfilePage: NextPage<ServerProps> = (props) => {
   const router = useRouter();
+  const { user: currentUser } = useCurrentUser();
+  const queryClient = useQueryClient();
 
-  console.log(props.userInfo);
+  const amIFollowing = useMemo(() => {
+    if (!props.userInfo) return false;
+    return (
+      (currentUser?.following?.findIndex(
+        (el) => el?.id === props.userInfo?.id
+      ) ?? -1) >= 0
+    );
+  }, [currentUser?.following, props.userInfo]);
+
+  const handleFollowUser = useCallback(async () => {
+    if (!props.userInfo?.id) return;
+
+    toast.loading("Following...", { id: "2" });
+
+    await graphqlClient.request(followUserMutation, { to: props.userInfo?.id });
+    await queryClient.invalidateQueries({ queryKey: ["curent-user"] });
+    toast.success("Done", { id: "2" });
+  }, [props.userInfo?.id, queryClient]);
+
+  const handleUnfollowUser = useCallback(async () => {
+    if (!props.userInfo?.id) return;
+
+    toast.loading("UnFollwing..", { id: "2" });
+
+    await graphqlClient.request(unfollowUserMutation, {
+      to: props.userInfo?.id,
+    });
+    await queryClient.invalidateQueries({ queryKey: ["curent-user"] });
+    toast.success("Done", { id: "2" });
+  }, [props.userInfo?.id, queryClient]);
 
   return (
     <div>
-      <TwitterLayout>
+      <Twitterlayout>
         <div>
-          <nav className=" flex items-center gap-3 py-3 px-3">
-            <BsArrowLeft className="text-2xl" />
+          <nav className="flex items-center gap-3 py-3 px-3">
+            <BsArrowLeftShort className="text-4xl" />
             <div>
-              <h1 className="text-xl font-bold">Ankit Chaudhary</h1>
-              <h1 className="text-sm  text-slate-300">100 Tweets</h1>
+              <h1 className="text-2xl font-bold">
+                {props.userInfo?.firstName} {props.userInfo?.lastName}
+              </h1>
+              <h1 className="text-md font-bold text-slate-500">
+                {props.userInfo?.tweets?.length} Tweets
+              </h1>
             </div>
           </nav>
-          <div className="p-2  border-b border-slate-800">
-            {props.userInfo && props.userInfo.profileImageUrl && (
+          <div className="p-4 border-b border-slate-800">
+            {props.userInfo?.profileImageUrl && (
               <Image
-                src={props.userInfo.profileImageUrl}
+                src={props.userInfo?.profileImageUrl}
+                alt="user-image"
                 className="rounded-full"
                 width={100}
                 height={100}
-                alt="user-profile-image"
               />
             )}
-            <h1 className="text-xl  mt-3">
+            <h1 className="text-2xl font-bold mt-5">
               {props.userInfo?.firstName} {props.userInfo?.lastName}
             </h1>
+            <div className="flex justify-between items-center">
+              <div className="flex gap-4 mt-2 text-sm text-gray-400">
+                <span>{props.userInfo?.followers?.length} followers</span>
+                <span>{props.userInfo?.following?.length} following</span>
+              </div>
+              {currentUser?.id !== props.userInfo?.id && (
+                <>
+                  {amIFollowing ? (
+                    <button
+                      onClick={handleUnfollowUser}
+                      className="bg-white text-black px-3 py-1 rounded-full text-sm"
+                    >
+                      Unfollow
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleFollowUser}
+                      className="bg-white text-black px-3 py-1 rounded-full text-sm"
+                    >
+                      Follow
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           <div>
             {props.userInfo?.tweets?.map((tweet) => (
-              <FeedCard key={tweet?.id} data={tweet as Tweet} />
+              <FeedCard data={tweet as Tweet} key={tweet?.id} />
             ))}
           </div>
         </div>
-      </TwitterLayout>
+      </Twitterlayout>
     </div>
   );
 };
@@ -59,14 +124,13 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
 export const getServerSideProps: GetServerSideProps<ServerProps> = async (
   context
 ) => {
-  const id = context.query.id as string;
-  if (!id) return { notFound: true, props: { user: undefined } };
+  const id = context.query.id as string | undefined;
+
+  if (!id) return { notFound: true, props: { userInfo: undefined } };
 
   const userInfo = await graphqlClient.request(getUserByIdQuery, { id });
 
-  if (!userInfo.getUserById) {
-    return { notFound: true };
-  }
+  if (!userInfo?.getUserById) return { notFound: true };
 
   return {
     props: {
