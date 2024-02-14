@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
-import Twitterlayout from "@/components/FeedCard/Layout/TwitterLayout";
+import Twitterlayout from "@/Components/FeedCard/Layout/TwitterLayout";
 import Image from "next/image";
 import type { GetServerSideProps, NextPage } from "next";
 import { BsArrowLeftShort } from "react-icons/bs";
 import { useCurrentUser } from "@/hooks/user";
-import FeedCard from "@/components/FeedCard";
+import FeedCard from "@/Components/FeedCard";
 import { Tweet, User } from "@/gql/graphql";
 import { graphqlClient } from "@/clients/api";
 import { getUserByIdQuery } from "@/graphql/query/user";
@@ -47,7 +47,7 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
   const handleUnfollowUser = useCallback(async () => {
     if (!props.userInfo?.id) return;
 
-    toast.loading("UnFollwing..", { id: "2" });
+    toast.loading("UnFollwing...", { id: "2" });
 
     await graphqlClient.request(unfollowUserMutation, {
       to: props.userInfo?.id,

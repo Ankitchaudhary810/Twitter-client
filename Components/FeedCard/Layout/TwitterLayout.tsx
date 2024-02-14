@@ -25,6 +25,8 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
   const { user } = useCurrentUser();
   const queryClient = useQueryClient();
 
+  console.log("user: ", user);
+
   const sidebarMenuItems: TwitterSidebarButton[] = useMemo(
     () => [
       {
@@ -94,7 +96,7 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
 
   return (
     <div>
-      <div className="grid grid-cols-12 h-screen w-screen sm:px-44">
+      <div className="grid grid-cols-12 h-screen w-screen sm:px-36">
         <div className="col-span-2 sm:col-span-3 pt-1 flex sm:justify-end pr-4 relative">
           <div>
             <div className="text-2xl h-fit w-fit hover:bg-gray-800 rounded-full p-4 cursor-pointer transition-all">
@@ -147,10 +149,38 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
           {props.children}
         </div>
         <div className="col-span-0 sm:col-span-3 p-5">
-          {!user && (
+          {!user ? (
             <div className="p-5 bg-slate-700 rounded-lg">
               <h1 className="my-2 text-2xl">New to Twitter?</h1>
               <GoogleLogin onSuccess={handleLoginWithGoogle} />
+            </div>
+          ) : (
+            <div className="px-4 py-3 bg-slate-800 rounded-lg">
+              <h1 className="my-2 text-xl mb-5">Users you may know</h1>
+              {user?.recommendedUser?.map((el) => (
+                <div className="flex items-center gap-3 mt-2" key={el?.id}>
+                  {el?.profileImageUrl && (
+                    <Image
+                      src={el?.profileImageUrl}
+                      alt="user-image"
+                      className="rounded-full"
+                      width={50}
+                      height={50}
+                    />
+                  )}
+                  <div>
+                    <div className="text-lg">
+                      {el?.firstName} {el?.lastName}
+                    </div>
+                    <Link
+                      href={`/${el?.id}`}
+                      className="bg-white text-black text-sm px-5 py-1 w-full rounded-lg"
+                    >
+                      View
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
