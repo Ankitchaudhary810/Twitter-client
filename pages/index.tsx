@@ -30,6 +30,7 @@ export default function Home(props: HomeProps) {
   const handleInputChangeFile = useCallback((input: HTMLInputElement) => {
     return async (event: Event) => {
       event.preventDefault();
+
       const file: File | null | undefined = input.files?.item(0);
       if (!file) return;
 
@@ -57,6 +58,10 @@ export default function Home(props: HomeProps) {
   }, []);
 
   const handleSelectImage = useCallback(() => {
+    if (!user) {
+      toast.error("Not Authenticated");
+      return;
+    }
     const input = document.createElement("input");
     input.setAttribute("type", "file");
     input.setAttribute("accept", "image/*");
@@ -69,6 +74,10 @@ export default function Home(props: HomeProps) {
   }, [handleInputChangeFile]);
 
   const handleCreateTweet = useCallback(async () => {
+    if (!user) {
+      toast.error("Not Authenticated");
+      return;
+    }
     await mutateAsync({
       content,
       imageURL,

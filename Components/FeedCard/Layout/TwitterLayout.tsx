@@ -11,6 +11,8 @@ import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
+import { CiLogout } from "react-icons/ci";
+
 interface TwitterSidebarButton {
   title: string;
   icon: React.ReactNode;
@@ -24,8 +26,6 @@ interface TwitterlayoutProps {
 const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
   const { user } = useCurrentUser();
   const queryClient = useQueryClient();
-
-  console.log("user: ", user);
 
   const sidebarMenuItems: TwitterSidebarButton[] = useMemo(
     () => [
@@ -65,10 +65,15 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
         link: `/${user?.id}`,
       },
       {
-        title: "More Options",
-        icon: <SlOptions />,
-        link: "/",
+        title: "Logout",
+        icon: <CiLogout />,
+        link: `/`,
       },
+      // {
+      //   title: "More Options",
+      //   icon: <SlOptions />,
+      //   link: "/",
+      // },
     ],
     [user?.id]
   );
@@ -94,6 +99,11 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
     [queryClient]
   );
 
+  const handleLogout = async () => {
+    toast.success("Logout");
+    window.localStorage.clear();
+    await queryClient.invalidateQueries({ queryKey: ["curent-user"] });
+  };
   return (
     <div>
       <div className="grid grid-cols-12 h-screen w-screen sm:px-36">
@@ -106,13 +116,29 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
               <ul>
                 {sidebarMenuItems.map((item) => (
                   <li key={item.title}>
-                    <Link
-                      className="flex justify-start items-center gap-4 hover:bg-gray-800 rounded-full px-3 py-3 w-fit cursor-pointer mt-2"
-                      href={item.link}
-                    >
-                      <span className=" text-3xl">{item.icon}</span>
-                      <span className="hidden sm:inline">{item.title}</span>
-                    </Link>
+                    {item.title === "Logout" ? (
+                      <>
+                        <button
+                          onClick={handleLogout}
+                          className="flex justify-start items-center gap-4
+                          hover:bg-gray-800 rounded-full px-3 py-3 w-fit
+                          cursor-pointer mt-2"
+                        >
+                          <span className=" text-3xl">{item.icon}</span>
+                          <span className="hidden sm:inline">{item.title}</span>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          className="flex justify-start items-center gap-4 hover:bg-gray-800 rounded-full px-3 py-3 w-fit cursor-pointer mt-2"
+                          href={item.link}
+                        >
+                          <span className=" text-3xl">{item.icon}</span>
+                          <span className="hidden sm:inline">{item.title}</span>
+                        </Link>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>

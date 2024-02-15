@@ -21,11 +21,21 @@ export type CreateTweetData = {
   imageURL?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Like = {
+  __typename?: 'Like';
+  tweet?: Maybe<Array<Maybe<Tweet>>>;
+  tweetId: Scalars['String']['output'];
+  user?: Maybe<Array<Maybe<User>>>;
+  userId: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createTweet?: Maybe<Tweet>;
   followUser?: Maybe<Scalars['Boolean']['output']>;
+  likeTweet: Scalars['Boolean']['output'];
   unfollowUser?: Maybe<Scalars['Boolean']['output']>;
+  unlikeTweet: Scalars['Boolean']['output'];
 };
 
 
@@ -39,8 +49,18 @@ export type MutationFollowUserArgs = {
 };
 
 
+export type MutationLikeTweetArgs = {
+  tweetId: Scalars['String']['input'];
+};
+
+
 export type MutationUnfollowUserArgs = {
   to: Scalars['ID']['input'];
+};
+
+
+export type MutationUnlikeTweetArgs = {
+  likeId: Scalars['String']['input'];
 };
 
 export type Query = {
@@ -81,6 +101,7 @@ export type Tweet = {
   content: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   imageURL?: Maybe<Scalars['String']['output']>;
+  likes?: Maybe<Array<Maybe<Like>>>;
 };
 
 export type User = {
