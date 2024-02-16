@@ -153,7 +153,7 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
             </div>
           </div>
           {user && (
-            <div className="absolute bottom-5 flex gap-2 items-center bg-slate-800 px-3 py-2 rounded-full">
+            <div className="absolute bottom-5 flex gap-2 items-center hover:bg-slate-800 px-3 py-2 rounded-full w-52">
               {user && user.profileImageUrl && (
                 <Image
                   className="rounded-full"
@@ -164,7 +164,7 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
                 />
               )}
               <div className="hidden sm:block">
-                <h3 className="text-xl">
+                <h3 className="text-sm">
                   {user.firstName} {user.lastName}
                 </h3>
               </div>

@@ -32,7 +32,7 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
   );
 
   return (
-    <div className="border border-r-0 border-l-0 border-b-0 border-gray-600 p-5 hover:bg-slate-900 transition-all cursor-pointer">
+    <div className="border border-r-0 border-l-0 border-b-0 border-gray-600 p-5  transition-all cursor-pointer">
       <div className="grid grid-cols-12 gap-3">
         <div className="col-span-1">
           {data.author?.profileImageUrl && (
@@ -46,7 +46,7 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
           )}
         </div>
         <div className="col-span-11">
-          <h5>
+          <h5 className="font-bold hover:underline">
             <Link href={`/${data.author?.id}`}>
               {data.author?.firstName} {data.author?.lastName}
             </Link>
@@ -62,11 +62,17 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
             <div>
               <FaRetweet />
             </div>
-            <button onClick={() => handleLikeToggle(data.id)}>
+            <button>
               <div className="flex gap-1 items-center  ">
+                {/* This Thing Can be optimsize */}
                 {data.likeIds?.includes(user?.id) ? (
                   <>
-                    <AiFillHeart color="red" size={19} />
+                    <AiFillHeart
+                      onClick={() => handleLikeToggle(data.id)}
+                      size={35}
+                      color="red"
+                      className="hover:bg-[#e9006b52] p-2 rounded-full transition duration-700 ease-in-out "
+                    />
                     {
                       <span color="red" className="text-sm">
                         {data.likeIds?.length || 0}
@@ -75,8 +81,12 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
                   </>
                 ) : (
                   <>
-                    <AiOutlineHeart color="red" size={19} />
-                    <span color="red" className="text-sm">
+                    <AiOutlineHeart
+                      onClick={() => handleLikeToggle(data.id)}
+                      size={35}
+                      className="hover:bg-[#e9006b52] p-2 rounded-full transition duration-700 ease-in-out"
+                    />
+                    <span className="text-sm ">
                       {data.likeIds?.length || 0}
                     </span>
                   </>
