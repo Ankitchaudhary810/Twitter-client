@@ -190,12 +190,12 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
                       src={el?.profileImageUrl}
                       alt="user-image"
                       className="rounded-full"
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                     />
                   )}
-                  <div>
-                    <div className="text-lg">
+                  <div className="">
+                    <div className="text-lg ">
                       {el?.firstName} {el?.lastName}
                     </div>
                     <Link

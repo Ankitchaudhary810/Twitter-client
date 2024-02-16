@@ -1,10 +1,15 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Image from "next/image";
 import { BiMessageRounded, BiUpload } from "react-icons/bi";
 import { FaRetweet } from "react-icons/fa";
-import { AiOutlineHeart } from "react-icons/ai";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { Tweet } from "@/gql/graphql";
 import Link from "next/link";
+import { useCurrentUser } from "@/hooks/user";
+import toast from "react-hot-toast";
+import { graphqlClient } from "@/clients/api";
+import { ToggleLikeMutation } from "@/graphql/mutation/tweet";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FeedCardProps {
   data: Tweet;
@@ -12,6 +17,19 @@ interface FeedCardProps {
 
 const FeedCard: React.FC<FeedCardProps> = (props) => {
   const { data } = props;
+
+  const { user } = useCurrentUser();
+  const queryClient = useQueryClient();
+
+  const handleLikeToggle = useCallback(
+    async (id: string) => {
+      await graphqlClient.request(ToggleLikeMutation, { id: id });
+      toast.success("Done");
+
+      await queryClient.invalidateQueries({ queryKey: ["all-tweets"] });
+    },
+    [queryClient]
+  );
 
   return (
     <div className="border border-r-0 border-l-0 border-b-0 border-gray-600 p-5 hover:bg-slate-900 transition-all cursor-pointer">
@@ -44,9 +62,27 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
             <div>
               <FaRetweet />
             </div>
-            <div>
-              <AiOutlineHeart />
-            </div>
+            <button onClick={() => handleLikeToggle(data.id)}>
+              <div className="flex gap-1 items-center  ">
+                {data.likeIds?.includes(user?.id) ? (
+                  <>
+                    <AiFillHeart color="red" size={19} />
+                    {
+                      <span color="red" className="text-sm">
+                        {data.likeIds?.length || 0}
+                      </span>
+                    }
+                  </>
+                ) : (
+                  <>
+                    <AiOutlineHeart color="red" size={19} />
+                    <span color="red" className="text-sm">
+                      {data.likeIds?.length || 0}
+                    </span>
+                  </>
+                )}
+              </div>
+            </button>
             <div>
               <BiUpload />
             </div>
