@@ -15,7 +15,7 @@ const config: Config = {
       },
     },
     colors: {
-      green: "rgb(12,159,100)",
+      pinkHover: "rgb(12,159,100)",
     },
   },
 

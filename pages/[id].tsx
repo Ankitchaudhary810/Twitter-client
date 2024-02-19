@@ -29,12 +29,16 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
     if (!props.userInfo) return false;
     return (
       (currentUser?.following?.findIndex(
-        (el) => el?.id === props.userInfo?.id
+        (el: any) => el?.id === props.userInfo?.id
       ) ?? -1) >= 0
     );
   }, [currentUser?.following, props.userInfo]);
 
   const handleFollowUser = useCallback(async () => {
+    if (!currentUser) {
+      toast.error("Not Authenticated");
+      return;
+    }
     if (!props.userInfo?.id) return;
 
     toast.loading("Following...", { id: "2" });
@@ -42,10 +46,15 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
     await graphqlClient.request(followUserMutation, { to: props.userInfo?.id });
     await queryClient.invalidateQueries({ queryKey: ["curent-user"] });
     toast.success("Done", { id: "2" });
-  }, [props.userInfo?.id, queryClient]);
+  }, [props.userInfo?.id, queryClient, currentUser]);
 
   const handleUnfollowUser = useCallback(async () => {
     if (!props.userInfo?.id) return;
+
+    if (!currentUser) {
+      toast.error("Not Authenticated");
+      return;
+    }
 
     toast.loading("UnFollwing...", { id: "2" });
 
@@ -54,7 +63,7 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
     });
     await queryClient.invalidateQueries({ queryKey: ["curent-user"] });
     toast.success("Done", { id: "2" });
-  }, [props.userInfo?.id, queryClient]);
+  }, [props.userInfo?.id, queryClient, currentUser]);
 
   return (
     <div>

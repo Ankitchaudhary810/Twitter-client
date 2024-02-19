@@ -12,7 +12,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
 import { CiLogout } from "react-icons/ci";
+import { User } from "@/gql/graphql";
 
+import { useRouter } from "next/router";
 interface TwitterSidebarButton {
   title: string;
   icon: React.ReactNode;
@@ -26,6 +28,7 @@ interface TwitterlayoutProps {
 const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
   const { user } = useCurrentUser();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const sidebarMenuItems: TwitterSidebarButton[] = useMemo(
     () => [
@@ -115,35 +118,46 @@ const Twitterlayout: React.FC<TwitterlayoutProps> = (props) => {
             <div className="mt-1 text-xl pr-4">
               <ul>
                 {sidebarMenuItems.map((item) => (
-                  <li key={item.title}>
-                    {item.title === "Logout" ? (
-                      <>
-                        <button
-                          onClick={handleLogout}
-                          className="flex justify-start items-center gap-4
+                  <>
+                    <li key={item.title}>
+                      {item.title === "Logout" ? (
+                        <>
+                          <button
+                            onClick={handleLogout}
+                            className="flex justify-start items-center gap-4
                           hover:bg-gray-800 rounded-full px-3 py-3 w-fit
                           cursor-pointer mt-2"
-                        >
-                          <span className=" text-3xl">{item.icon}</span>
-                          <span className="hidden sm:inline">{item.title}</span>
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          className="flex justify-start items-center gap-4 hover:bg-gray-800 rounded-full px-3 py-3 w-fit cursor-pointer mt-2"
-                          href={item.link}
-                        >
-                          <span className=" text-3xl">{item.icon}</span>
-                          <span className="hidden sm:inline">{item.title}</span>
-                        </Link>
-                      </>
-                    )}
-                  </li>
+                          >
+                            <span className=" text-3xl">{item.icon}</span>
+                            <span className="hidden sm:inline">
+                              {item.title}
+                            </span>
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            className="flex justify-start items-center gap-4 hover:bg-gray-800 rounded-full px-3 py-3 w-fit cursor-pointer mt-2"
+                            href={item.link}
+                          >
+                            <span className=" text-3xl">{item.icon}</span>
+                            <span className="hidden sm:inline">
+                              {item.title}
+                            </span>
+                          </Link>
+                        </>
+                      )}
+                    </li>
+                  </>
                 ))}
               </ul>
               <div className="mt-5 px-3">
-                <button className="hidden sm:block bg-[#1d9bf0] font-semibold text-lg py-2 px-4 rounded-full w-full">
+                <button
+                  className="hidden sm:block bg-[#1d9bf0] font-semibold text-lg py-2 px-4 rounded-full w-full"
+                  onClick={() => {
+                    router.push("/");
+                  }}
+                >
                   Tweet
                 </button>
                 <button className="block sm:hidden bg-[#1d9bf0] font-semibold text-lg py-2 px-4 rounded-full w-full">

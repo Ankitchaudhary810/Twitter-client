@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { BiMessageRounded, BiUpload } from "react-icons/bi";
 import { FaRetweet } from "react-icons/fa";
@@ -23,12 +23,16 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
 
   const handleLikeToggle = useCallback(
     async (id: string) => {
+      if (!user) {
+        toast.error("Not Authenticated");
+        return;
+      }
       await graphqlClient.request(ToggleLikeMutation, { id: id });
       toast.success("Done");
 
       await queryClient.invalidateQueries({ queryKey: ["all-tweets"] });
     },
-    [queryClient]
+    [queryClient, user]
   );
 
   return (
@@ -46,8 +50,11 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
           )}
         </div>
         <div className="col-span-11">
-          <h5 className="font-bold hover:underline">
-            <Link href={`/${data.author?.id}`}>
+          <h5>
+            <Link
+              href={`/${data.author?.id}`}
+              className="font-bold hover:underline"
+            >
               {data.author?.firstName} {data.author?.lastName}
             </Link>
           </h5>
@@ -65,13 +72,13 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
             <button>
               <div className="flex gap-1 items-center  ">
                 {/* This Thing Can be optimsize */}
-                {data.likeIds?.includes(user?.id) ? (
+                {user && data.likeIds?.includes(user?.id) ? (
                   <>
                     <AiFillHeart
                       onClick={() => handleLikeToggle(data.id)}
                       size={35}
-                      color="red"
-                      className="hover:bg-[#e9006b52] p-2 rounded-full transition duration-700 ease-in-out "
+                      color="#F91880"
+                      className="hover:bg-[#e9006b52] p-2 rounded-full transition duration-700 ease-in-out px-0 "
                     />
                     {
                       <span color="red" className="text-sm">
@@ -84,7 +91,7 @@ const FeedCard: React.FC<FeedCardProps> = (props) => {
                     <AiOutlineHeart
                       onClick={() => handleLikeToggle(data.id)}
                       size={35}
-                      className="hover:bg-[#e9006b52] p-2 rounded-full transition duration-700 ease-in-out"
+                      className="hover:bg-[#f835db47] p-2 rounded-full transition duration-700 ease-in-out px-0"
                     />
                     <span className="text-sm ">
                       {data.likeIds?.length || 0}
