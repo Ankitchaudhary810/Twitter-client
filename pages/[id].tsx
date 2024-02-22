@@ -16,6 +16,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
+import { router } from "next/router";
+
 interface ServerProps {
   userInfo?: User;
 }
@@ -65,12 +67,19 @@ const UserProfilePage: NextPage<ServerProps> = (props) => {
     toast.success("Done", { id: "2" });
   }, [props.userInfo?.id, queryClient, currentUser]);
 
+  const handleGoBack = useCallback(async () => {
+    router.back();
+  }, []);
+
   return (
     <div>
       <Twitterlayout>
         <div>
           <nav className="flex items-center gap-3 py-3 px-3">
-            <BsArrowLeftShort className="text-4xl" />
+            <BsArrowLeftShort
+              className="text-4xl hover:cursor-pointer"
+              onClick={handleGoBack}
+            />
             <div>
               <h1 className="text-2xl font-bold">
                 {props.userInfo?.firstName} {props.userInfo?.lastName}
